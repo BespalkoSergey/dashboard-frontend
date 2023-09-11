@@ -1,1 +1,13 @@
-<p>auth works!</p>
+<div class="container-login-form">
+  <div class="login-form">
+    <mat-form-field>
+      <mat-label>Type password</mat-label>
+      <input matInput [type]="inputType" [formControl]="password" (focusout)="setIsPassTouched()" />
+      <button mat-icon-button matSuffix (click)="togglePassVisibility()" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="isPassHidden">
+        <mat-icon [color]="iconColor" [fontIcon]="visibility" />
+      </button>
+    </mat-form-field>
+
+    <app-ui-animated-btn (click)="onClick($event)">Login</app-ui-animated-btn>
+  </div>
+</div>

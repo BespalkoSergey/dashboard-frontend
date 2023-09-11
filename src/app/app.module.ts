@@ -7,7 +7,8 @@ import { UserAuthService } from './services/user-auth.service'
 import { Observable } from 'rxjs'
 import { AuthBearerService } from './services/auth-bearer.service'
 import { canActivateAuthGuard } from './guards/can-activate-auth.guard'
-import { canMatchDashboardGuard } from './guards/can-match-dashboard.guard'
+import { canMatchDashboardGuard } from './guards/can-match-dashboard.guard';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 const routes: Routes = [
   {
@@ -33,7 +34,7 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, HttpClientModule, RouterModule.forRoot(routes)],
+  imports: [BrowserModule, HttpClientModule, RouterModule.forRoot(routes), BrowserAnimationsModule],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
