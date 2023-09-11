@@ -5,9 +5,9 @@ import { RouterModule, Routes } from '@angular/router'
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
 import { UserAuthService } from './services/user-auth.service'
 import { Observable } from 'rxjs'
-import { AuthBearerService } from './services/auth-bearer.service'
+import { AuthBearerInterceptor } from './interceptors/auth-bearer.interceptor'
 import { canActivateAuthGuard } from './guards/can-activate-auth.guard'
-import { canMatchDashboardGuard } from './guards/can-match-dashboard.guard';
+import { canMatchDashboardGuard } from './guards/can-match-dashboard.guard'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 const routes: Routes = [
@@ -38,7 +38,7 @@ const routes: Routes = [
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: AuthBearerService,
+      useClass: AuthBearerInterceptor,
       multi: true
     },
     {
