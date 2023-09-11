@@ -5,6 +5,7 @@ import { ICON_COLOR_MAP, InputTypeEnum, VisibilityEnum } from './auth.constants'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { distinctUntilChanged, map } from 'rxjs/operators'
 import { ThemePalette } from '@angular/material/core'
+import { isNotEmptyStringUtil } from '../../utils/in-not-empty-string.util'
 
 @Component({
   selector: 'app-auth',
@@ -40,12 +41,13 @@ export class AuthComponent {
 
     this.password.markAsTouched()
     this.password.markAsDirty()
+    this.isPassTouched$.next(true)
 
-    if (this.password.invalid) {
+    const { value } = this.password
+
+    if (this.password.invalid || !isNotEmptyStringUtil(value)) {
       return
     }
-
-    const value = this.password.value
 
     console.log(value)
   }
