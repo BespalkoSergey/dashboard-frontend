@@ -1,4 +1,13 @@
 import { ThemePalette } from '@angular/material/core'
+import { AuthStoreStateInterface } from './auth.models'
+
+export const AUTH_FEATURE_NAME = 'app-auth'
+export const INITIAL_AUTH_STORE_STATE: AuthStoreStateInterface = {
+  isAuthInProcess: false,
+  isAuthLoaded: false,
+  authErrorMsg: null,
+  authData: null
+}
 
 export enum InputTypeEnum {
   'password' = 'password',

@@ -2,14 +2,14 @@ import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { BehaviorSubject, interval, Observable, of, Subject, throwError } from 'rxjs'
 import { catchError, distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators'
-import { UserInterface } from '../models/user.model'
-import { runOutsideNgZoneUtil } from '../utils/run-outside-ng-zone.util'
-import { LocalStorageService } from './local-storage.service'
-import { decodeB64Util } from '../utils/decode-b64.util'
-import { isNotEmptyStringUtil } from '../utils/in-not-empty-string.util'
+import { UserInterface } from '../../models/user.model'
+import { runOutsideNgZoneUtil } from '../../utils/run-outside-ng-zone.util'
+import { LocalStorageService } from '../../services/local-storage.service'
+import { decodeB64Util } from '../../utils/decode-b64.util'
+import { isNotEmptyStringUtil } from '../../utils/in-not-empty-string.util'
 
 @Injectable({ providedIn: 'root' })
-export class UserAuthService {
+export class AuthService {
   public readonly USER_AUTH_API_URL = 'http://localhost:3000/auth'
   private readonly TOKEN_KEY = 'app-dashboard-token'
   private readonly _redirectToLogin$ = new Subject<void>()
@@ -80,7 +80,7 @@ export class UserAuthService {
   public login$(username: string, password: string): Observable<string | null> {
     return this.http.post<string>(this.USER_AUTH_API_URL + '/login', { username, password }, { responseType: 'text' as 'json' }).pipe(
       catchError(error => {
-        console.error('UserAuthService: login failed', error)
+        console.error('AuthService: login failed', error)
         return throwError(error)
       }),
       map(token => {
@@ -93,7 +93,7 @@ export class UserAuthService {
   private refreshToken$(): Observable<boolean> {
     return this.http.post<string>(this.USER_AUTH_API_URL + '/refresh', null, { responseType: 'text' as 'json' }).pipe(
       catchError(error => {
-        console.error('UserAuthService: token refresh failed', error)
+        console.error('AuthService: token refresh failed', error)
         this.logout()
         return of(null)
       }),

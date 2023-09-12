@@ -1,5 +1,5 @@
 import { Component } from '@angular/core'
-import { UserAuthService } from './services/user-auth.service'
+import { AuthService } from './modules/auth/auth.service'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { Router } from '@angular/router'
 
@@ -9,7 +9,7 @@ import { Router } from '@angular/router'
 })
 export class AppComponent {
   constructor(
-    private readonly auth: UserAuthService,
+    private readonly auth: AuthService,
     private readonly router: Router
   ) {
     this.auth.redirectToLogin$.pipe(takeUntilDestroyed()).subscribe(() => this.router.navigate(['/auth']))
