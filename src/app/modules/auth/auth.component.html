@@ -6,8 +6,7 @@
       <button mat-icon-button matSuffix (click)="togglePassVisibility()" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="isPassHidden">
         <mat-icon [color]="iconColor" [fontIcon]="visibility" />
       </button>
-      <mat-error *ngIf="password.hasError('required') && password.touched">* this field is required</mat-error>
-      <mat-error *ngIf="authErrorMsg">{{ authErrorMsg }}</mat-error>
+      <mat-error *ngIf="password.hasError('message')">* {{ password.getError('message') }}</mat-error>
     </mat-form-field>
 
     <app-ui-animated-btn (click)="onClick($event)">Login</app-ui-animated-btn>

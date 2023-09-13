@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http'
+import { HttpClient, HttpErrorResponse } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { BehaviorSubject, interval, Observable, of, Subject, throwError } from 'rxjs'
 import { catchError, distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators'
@@ -7,6 +7,8 @@ import { runOutsideNgZoneUtil } from '../../utils/run-outside-ng-zone.util'
 import { LocalStorageService } from '../../services/local-storage.service'
 import { decodeB64Util } from '../../utils/decode-b64.util'
 import { isNotEmptyStringUtil } from '../../utils/in-not-empty-string.util'
+import { AuthAdminLoginInterface } from './auth.models'
+import { HTTP_ERROR_STATUS_CODE_MAP } from './auth.constants'
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -77,17 +79,18 @@ export class AuthService {
       .subscribe()
   }
 
-  public login$(username: string, password: string): Observable<string | null> {
-    return this.http.post<string>(this.USER_AUTH_API_URL + '/login', { username, password }, { responseType: 'text' as 'json' }).pipe(
-      catchError(error => {
-        console.error('AuthService: login failed', error)
-        return throwError(error)
-      }),
-      map(token => {
-        this.saveToken(token)
-        return token
-      })
-    )
+  public login$(body: AuthAdminLoginInterface): Observable<string | null> {
+    return this.http.post<string>(this.USER_AUTH_API_URL + '/login', body, { responseType: 'text' as 'json' })
+    //   .pipe(
+    //   catchError(e => {
+    //     console.error('AuthService: login failed', e)
+    //     return throwError(e)
+    //   }),
+    //   map(token => {
+    //     this.saveToken(token)
+    //     return token
+    //   })
+    // )
   }
 
   private refreshToken$(): Observable<boolean> {
@@ -102,5 +105,14 @@ export class AuthService {
         return !!token
       })
     )
+  }
+
+  public getErrorMsg(e: unknown): string | null {
+    const isErrorInstanceofHttpErrorResponse = e instanceof HttpErrorResponse
+    if (!isErrorInstanceofHttpErrorResponse) {
+      return 'error is not instance of HttpErrorResponse'
+    }
+
+    return HTTP_ERROR_STATUS_CODE_MAP[e.status.toString()]
   }
 }

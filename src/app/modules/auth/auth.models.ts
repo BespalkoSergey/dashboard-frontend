@@ -1,9 +1,18 @@
-export interface AuthDataInterface {
-  token: string
+export interface AuthErrorMsgInterface {
+  authErrorMsg: string | null
 }
-export interface AuthStoreStateInterface {
+
+export interface AuthTokenInterface {
+  authToken: string | null
+}
+export interface AuthProcessInterface {
   isAuthInProcess: boolean
   isAuthLoaded: boolean
-  authErrorMsg: string | null
-  authData: AuthDataInterface | null
 }
+
+export interface AuthAdminLoginInterface {
+  username: string
+  password: string
+}
+
+export type AuthStoreStateType = AuthProcessInterface & AuthTokenInterface & AuthErrorMsgInterface
