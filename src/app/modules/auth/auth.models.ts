@@ -4,13 +4,20 @@ export interface AuthErrorMsgInterface {
 
 export interface AuthTokenInterface {
   authToken: string | null
+  authTokenMetaData: AuthTokenMetaDataInterface | null
+}
+
+export interface AuthTokenMetaDataInterface {
+  id: number
+  iat: number
+  exp: number
 }
 export interface AuthProcessInterface {
   isAuthInProcess: boolean
   isAuthLoaded: boolean
 }
 
-export interface AuthAdminLoginInterface {
+export interface AuthLoginInterface {
   username: string
   password: string
 }

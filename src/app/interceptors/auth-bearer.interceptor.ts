@@ -1,26 +1,35 @@
 import { Injectable } from '@angular/core'
 import { HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse, HttpInterceptor } from '@angular/common/http'
 import { Observable, catchError, throwError } from 'rxjs'
-import { AuthService } from '../modules/auth/auth.service'
+import { TOKEN_KEY, USER_AUTH_API_URL } from '../constants/constants'
+import { Store } from '@ngrx/store'
+import { authFailed } from '../modules/auth/auth.actions'
+import { LocalStorageService } from '../services/local-storage.service'
+import { isNotEmptyStringUtil } from '../utils/in-not-empty-string.util'
 
 @Injectable()
 export class AuthBearerInterceptor implements HttpInterceptor {
-  public constructor(private auth: AuthService) {}
+  public constructor(
+    private readonly store$: Store,
+    private readonly ls: LocalStorageService
+  ) {}
   public intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(this.getReq(req)).pipe(
-      catchError(err => {
-        if (err instanceof HttpErrorResponse && err.status === 401) {
-          this.auth.logout()
+      catchError(e => {
+        if (e instanceof HttpErrorResponse && e.status === 401) {
+          this.store$.dispatch(authFailed({ authErrorMsg: e.message }))
         }
-        return throwError(err)
+        return throwError(e)
       })
     )
   }
 
   private getReq(req: HttpRequest<unknown>): HttpRequest<unknown> {
-    if (this.auth.token && this.auth.USER_AUTH_API_URL.includes(new URL(req.url).origin)) {
+    const token = this.ls.getItem(TOKEN_KEY)
+
+    if (isNotEmptyStringUtil(token) && USER_AUTH_API_URL.includes(new URL(req.url).origin)) {
       return req.clone({
-        headers: req.headers.set('Authorization', `Bearer ${this.auth.token}`)
+        headers: req.headers.set('Authorization', `Bearer ${token}`)
       })
     }
 

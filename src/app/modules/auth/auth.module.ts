@@ -11,6 +11,7 @@ import { AUTH_FEATURE_NAME } from './auth.constants'
 import { CommonModule } from '@angular/common'
 import { EffectsModule } from '@ngrx/effects'
 import * as authEffects from './auth.effects'
+import { JwtModule } from '@auth0/angular-jwt'
 
 @NgModule({
   declarations: [AuthComponent],
@@ -22,7 +23,12 @@ import * as authEffects from './auth.effects'
     MatIconModule,
     MatInputModule,
     MatButtonModule,
-    CommonModule
+    CommonModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: () => null
+      }
+    })
   ]
 })
 export class AuthModule {}

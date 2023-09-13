@@ -7,10 +7,13 @@ export const INITIAL_AUTH_STORE_STATE: AuthStoreStateType = {
   isAuthInProcess: false,
   isAuthLoaded: false,
   authErrorMsg: null,
-  authToken: null
+  authToken: null,
+  authTokenMetaData: null
 }
 
 export const PASS_ERROR_REQUIRED_MSG = 'this field is required'
+
+export const ONE_MINUTE_IN_MS = 1000 * 60 * 1 // 1 min
 
 export enum InputTypeEnum {
   'password' = 'password',

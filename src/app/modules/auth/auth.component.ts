@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core'
+import { Component, computed, HostListener, inject, signal } from '@angular/core'
 import { FormControl } from '@angular/forms'
 import { BehaviorSubject, combineLatest, startWith } from 'rxjs'
 import { AUTH_FEATURE_NAME, AUTH_USER_NAME, ICON_COLOR_MAP, InputTypeEnum, PASS_ERROR_REQUIRED_MSG, VisibilityEnum } from './auth.constants'
@@ -56,7 +56,8 @@ export class AuthComponent {
     this.isPassTouched$.next(true)
   }
 
-  public onClick(e: MouseEvent) {
+  @HostListener('document:keydown.enter', ['$event'])
+  public submit(e: UIEvent): void {
     e.stopPropagation()
     e.preventDefault()
 

@@ -1,118 +1,35 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http'
+import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
-import { BehaviorSubject, interval, Observable, of, Subject, throwError } from 'rxjs'
-import { catchError, distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators'
-import { UserInterface } from '../../models/user.model'
-import { runOutsideNgZoneUtil } from '../../utils/run-outside-ng-zone.util'
-import { LocalStorageService } from '../../services/local-storage.service'
-import { decodeB64Util } from '../../utils/decode-b64.util'
+import { Observable, map } from 'rxjs'
 import { isNotEmptyStringUtil } from '../../utils/in-not-empty-string.util'
-import { AuthAdminLoginInterface } from './auth.models'
-import { HTTP_ERROR_STATUS_CODE_MAP } from './auth.constants'
+import { AuthLoginInterface, AuthTokenInterface, AuthTokenMetaDataInterface } from './auth.models'
+import { JwtHelperService } from '@auth0/angular-jwt'
+import { USER_AUTH_API_URL } from '../../constants/constants'
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  public readonly USER_AUTH_API_URL = 'http://localhost:3000/auth'
-  private readonly TOKEN_KEY = 'app-dashboard-token'
-  private readonly _redirectToLogin$ = new Subject<void>()
-  private readonly _token$ = new BehaviorSubject<string | null>(null)
-
   public constructor(
     private readonly http: HttpClient,
-    private readonly ls: LocalStorageService
-  ) {
-    this._token$.next(this.ls.getItem(this.TOKEN_KEY) ?? null)
-    this.refreshTokenByTimeout()
+    private readonly jwt: JwtHelperService
+  ) {}
+  public login$(body: AuthLoginInterface): Observable<AuthTokenInterface> {
+    return this.http.post<string>(USER_AUTH_API_URL + '/login', body, { responseType: 'text' as 'json' }).pipe(map(str => this.getAuthTokenData(str)))
   }
 
-  public get timeout(): number {
-    return 1000 * 60 * 5
+  public refreshToken$(): Observable<AuthTokenInterface> {
+    return this.http.post<string>(USER_AUTH_API_URL + '/refresh', null, { responseType: 'text' as 'json' }).pipe(map(str => this.getAuthTokenData(str)))
   }
 
-  public get token(): string | null {
-    return this._token$.getValue()
-  }
-
-  public get user(): UserInterface | null {
-    return decodeB64Util<UserInterface>(this.token)
-  }
-
-  public get token$(): Observable<string | null> {
-    return this._token$.asObservable().pipe(distinctUntilChanged())
-  }
-
-  public get redirectToLogin$(): Observable<void> {
-    return this._redirectToLogin$.asObservable()
-  }
-
-  public logout(): void {
-    this.saveToken(null)
-    this._redirectToLogin$.next()
-  }
-
-  public initialize(): Observable<boolean> {
-    if (!this.token) {
-      return of(true)
+  private getAuthTokenData(str: string) {
+    if (!isNotEmptyStringUtil(str)) {
+      return { authToken: null, authTokenMetaData: null }
     }
 
-    return this.refreshToken$().pipe(map(() => true))
-  }
-
-  private saveToken(token: string | null): void {
-    this._token$.next(token)
-
-    if (token) {
-      this.ls.setItem(this.TOKEN_KEY, token)
-      return
+    const token = this.jwt.decodeToken<AuthTokenMetaDataInterface>(str)
+    if (!token) {
+      return { authToken: null, authTokenMetaData: null }
     }
 
-    this.ls.removeItem(this.TOKEN_KEY)
-  }
-
-  private refreshTokenByTimeout(): void {
-    interval(this.timeout)
-      .pipe(
-        filter(() => isNotEmptyStringUtil(this.token)),
-        switchMap(() => this.refreshToken$()),
-        runOutsideNgZoneUtil()
-      )
-      .subscribe()
-  }
-
-  public login$(body: AuthAdminLoginInterface): Observable<string | null> {
-    return this.http.post<string>(this.USER_AUTH_API_URL + '/login', body, { responseType: 'text' as 'json' })
-    //   .pipe(
-    //   catchError(e => {
-    //     console.error('AuthService: login failed', e)
-    //     return throwError(e)
-    //   }),
-    //   map(token => {
-    //     this.saveToken(token)
-    //     return token
-    //   })
-    // )
-  }
-
-  private refreshToken$(): Observable<boolean> {
-    return this.http.post<string>(this.USER_AUTH_API_URL + '/refresh', null, { responseType: 'text' as 'json' }).pipe(
-      catchError(error => {
-        console.error('AuthService: token refresh failed', error)
-        this.logout()
-        return of(null)
-      }),
-      map(token => {
-        this.saveToken(token)
-        return !!token
-      })
-    )
-  }
-
-  public getErrorMsg(e: unknown): string | null {
-    const isErrorInstanceofHttpErrorResponse = e instanceof HttpErrorResponse
-    if (!isErrorInstanceofHttpErrorResponse) {
-      return 'error is not instance of HttpErrorResponse'
-    }
-
-    return HTTP_ERROR_STATUS_CODE_MAP[e.status.toString()]
+    return { authToken: str, authTokenMetaData: { ...token } }
   }
 }

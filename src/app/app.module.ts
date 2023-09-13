@@ -1,12 +1,9 @@
-import { APP_INITIALIZER, NgModule, isDevMode } from '@angular/core'
+import { NgModule, isDevMode } from '@angular/core'
 import { BrowserModule } from '@angular/platform-browser'
 import { AppComponent } from './app.component'
 import { RouterModule, Routes } from '@angular/router'
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
-import { AuthService } from './modules/auth/auth.service'
-import { Observable } from 'rxjs'
 import { AuthBearerInterceptor } from './interceptors/auth-bearer.interceptor'
-import { canActivateAuthGuard } from './guards/can-activate-auth.guard'
 import { canMatchDashboardGuard } from './guards/can-match-dashboard.guard'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import { StoreModule } from '@ngrx/store'
@@ -24,8 +21,7 @@ const routes: Routes = [
   },
   {
     path: 'auth',
-    component: AuthComponent,
-    canActivate: [canActivateAuthGuard]
+    component: AuthComponent
   },
   {
     path: 'dashboard',
@@ -34,7 +30,7 @@ const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: ''
+    redirectTo: 'auth'
   }
 ]
 
@@ -56,12 +52,6 @@ const routes: Routes = [
       provide: HTTP_INTERCEPTORS,
       useClass: AuthBearerInterceptor,
       multi: true
-    },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (authService: AuthService) => (): Observable<boolean> => authService.initialize(),
-      multi: true,
-      deps: [AuthService]
     }
   ],
   bootstrap: [AppComponent]

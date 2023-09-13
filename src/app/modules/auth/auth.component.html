@@ -9,6 +9,6 @@
       <mat-error *ngIf="password.hasError('message')">* {{ password.getError('message') }}</mat-error>
     </mat-form-field>
 
-    <app-ui-animated-btn (click)="onClick($event)">Login</app-ui-animated-btn>
+    <app-ui-animated-btn (click)="submit($event)">Login</app-ui-animated-btn>
   </div>
 </div>
