@@ -44,8 +44,7 @@ export class AuthComponent {
 
         return pass.touched && pass.invalid
       }),
-      distinctUntilChanged(),
-      takeUntilDestroyed()
+      distinctUntilChanged()
     )
   )
 
