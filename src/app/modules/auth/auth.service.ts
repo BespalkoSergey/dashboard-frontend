@@ -3,20 +3,21 @@ import { Injectable } from '@angular/core'
 import { Observable, map } from 'rxjs'
 import { AuthLoginInterface, AuthTokenInterface, AuthTokenMetaDataInterface } from './auth.models'
 import { JwtHelperService } from '@auth0/angular-jwt'
-import { USER_AUTH_API_URL } from '../../constants/constants'
+import { LocationService } from '../../services/location.service'
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   public constructor(
     private readonly http: HttpClient,
-    private readonly jwt: JwtHelperService
+    private readonly jwt: JwtHelperService,
+    private readonly loc: LocationService
   ) {}
   public login$(body: AuthLoginInterface): Observable<AuthTokenInterface> {
-    return this.http.post<string>(USER_AUTH_API_URL + '/login', body, { responseType: 'text' as 'json' }).pipe(map(str => this.getAuthTokenData(str)))
+    return this.http.post<string>(this.loc.apiOrigin + '/auth/login', body, { responseType: 'text' as 'json' }).pipe(map(str => this.getAuthTokenData(str)))
   }
 
   public refreshToken$(): Observable<AuthTokenInterface> {
-    return this.http.post<string>(USER_AUTH_API_URL + '/refresh', null, { responseType: 'text' as 'json' }).pipe(map(str => this.getAuthTokenData(str)))
+    return this.http.post<string>(this.loc.apiOrigin + '/auth/refresh', null, { responseType: 'text' as 'json' }).pipe(map(str => this.getAuthTokenData(str)))
   }
 
   private getAuthTokenData(str: string) {
