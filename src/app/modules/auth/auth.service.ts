@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { Observable, map } from 'rxjs'
-import { isNotEmptyStringUtil } from '../../utils/in-not-empty-string.util'
 import { AuthLoginInterface, AuthTokenInterface, AuthTokenMetaDataInterface } from './auth.models'
 import { JwtHelperService } from '@auth0/angular-jwt'
 import { USER_AUTH_API_URL } from '../../constants/constants'
@@ -21,13 +20,10 @@ export class AuthService {
   }
 
   private getAuthTokenData(str: string) {
-    if (!isNotEmptyStringUtil(str)) {
-      return { authToken: null, authTokenMetaData: null }
-    }
-
     const token = this.jwt.decodeToken<AuthTokenMetaDataInterface>(str)
+
     if (!token) {
-      return { authToken: null, authTokenMetaData: null }
+      throw new Error('Token is empty')
     }
 
     return { authToken: str, authTokenMetaData: { ...token } }
